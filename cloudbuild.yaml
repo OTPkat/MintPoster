@@ -7,5 +7,5 @@ steps:
   - |
       PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2>/dev/null)
       gcloud builds submit --tag gcr.io/"${PROJECT_ID}"/mintposterbot
-      gcloud compute instances update-container mint-poster-bot-expo --zone=europe-west1-b --container-image=gcr.io/spartan-theorem-328817/mintposterbot:latest
+      gcloud compute instances update-container haspass-expo --zone=europe-west1-b --container-image=gcr.io/spartan-theorem-328817/mintposterbot:latest
 
