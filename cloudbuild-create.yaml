@@ -12,4 +12,4 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute instances create-with-container mint-poster-bot-expo --container-image gcr.io/spartan-theorem-328817/mintposterbot:latest --service-account mint-poster-bot@spartan-theorem-328817.iam.gserviceaccount.com --scopes "https://www.googleapis.com/auth/cloud-platform" --zone europe-west1-b
+        gcloud compute instances create-with-container haspass-expo --container-image gcr.io/spartan-theorem-328817/mintposterbot:latest --service-account mint-poster-bot@spartan-theorem-328817.iam.gserviceaccount.com --scopes "https://www.googleapis.com/auth/cloud-platform" --zone europe-west1-b
