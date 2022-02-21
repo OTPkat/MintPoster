@@ -34,10 +34,10 @@ class MintPoster(commands.Cog):
         self.printer.stop()
 
     @staticmethod
-    def check_if_token_was_posted(token_id):
+    def get_discord_message_id(token_id) -> bigquery.Row:
         client = bigquery.Client()
         query = f"""
-        select * from {TABLE_ID} where token_id = @token_id
+        select discord_message_id from {TABLE_ID} where token_id = @token_id
         """
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
@@ -45,7 +45,7 @@ class MintPoster(commands.Cog):
             ]
         )
         query = client.query(query, job_config)
-        return bool(query.result().total_rows)
+        return next(query.result())
 
     @staticmethod
     def get_token_ids_from_big_query() -> Set[int]:
@@ -85,12 +85,10 @@ class MintPoster(commands.Cog):
 
     @tasks.loop(seconds=LOOP_TIME_POOL_MINT_DATA)
     async def printer(self):
-        print(self.get_token_ids_from_storage())
         token_ids_to_be_posted = self.get_token_ids_from_storage().difference(
             self.posted_token_ids
         )
-        # for token_id in token_ids_to_be_posted:
-        for token_id in [1,2,3,10]:
+        for token_id in token_ids_to_be_posted:
             token_meta_data = json.loads(self.get_token(token_id))
             color = None
             for x in token_meta_data["attributes"]:
@@ -110,13 +108,13 @@ class MintPoster(commands.Cog):
                     inline=False,
                 )
             image_file_name = self.get_image(token_id=token_id)
-            print(image_file_name)
-            # file = discord.File(image_file_name, filename=f"image_{token_id}.png")
-            # embed_mint.set_image(url=f"attachment://image_{token_id}.png")
-            # mint_post = await self.channel.send(embed=embed_mint, file=file)
-            # GcpUtils.insert_rows_bigquery(
-            #     [{"discord_message_id": mint_post.id, "token_id": token_id}], TABLE_ID
-            # )
+            file = discord.File(image_file_name, filename=f"image_{token_id}.png")
+            embed_mint.set_image(url=f"attachment://image_{token_id}.png")
+            mint_post = await self.channel.send(embed=embed_mint, file=file)
+            GcpUtils.insert_rows_bigquery(
+                [{"discord_message_id": mint_post.id, "token_id": token_id}], TABLE_ID
+            )
+            self.posted_token_ids.add(token_id)
 
     @printer.before_loop
     async def before_printer(self):
@@ -125,7 +123,13 @@ class MintPoster(commands.Cog):
 
     @commands.check(only_owners)
     @commands.command()
-    async def refresh_mint_post(self, ctx, token_id):
+    async def refresh_mint_post(self, ctx, token_id_str):
+        """
+        Currently not defined as it requires deleting a message
+        :param ctx:
+        :param token_id_str:
+        :return:
+        """
         pass
 
     @commands.check(only_owners)

@@ -1,6 +1,5 @@
 import typing
 from google.cloud import secretmanager
-from google.cloud import storage
 from google.cloud import bigquery
 import json
 from typing import Any, Dict, Optional
